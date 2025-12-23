@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 词云猜猜猜——音乐版🎵</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #6a11cb;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .game-area {
+            margin: 20px 0;
+        }
+        
+        .wordcloud-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px dashed #6a11cb;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #wordcloud-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 18px;
+            color: #2575fc;
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ff4757;
+            font-size: 24px;
+        }
+        
+        .input-area {
+            margin: 20px 0;
+        }
+        
+        #answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #6a11cb;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        #answer-input:focus {
+            outline: none;
+            border-color: #ff4757;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+        }
+        
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .hint-btn {
+            background: linear-gradient(135deg, #ffa502, #ff7f00);
+            color: white;
+        }
+        
+        .skip-btn {
+            background: linear-gradient(135deg, #2ed573, #1dd1a1);
+            color: white;
+        }
+        
+        .ai-btn {
+            background: linear-gradient(135deg, #ff4757, #ff3838);
+            color: white;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+        
+        .hint-box {
+            background: #fff9e6;
+            border-left: 4px solid #ffa502;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .hint-box h3 {
+            color: #ff7f00;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .hint-level {
+            display: inline-block;
+            background: #ff7f00;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .score-board {
+            background: #e6f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .instructions {
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        .instructions h4 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .instructions li:before {
+            content: "•";
+            color: #6a11cb;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .correct-animation {
+            animation: correctAnswer 0.5s ease;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            button {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-music"></i> 词云猜歌挑战赛</h1>
+        <p class="subtitle">根据词云猜歌名，三级提示系统，挑战你的音乐知识！</p>
+        
+        <div class="game-info">
+            <div><i class="fas fa-question-circle"></i> 第 <span id="current">1</span> / 10 题</div>
+            <div><i class="fas fa-star"></i> 得分: <span id="score">0</span> 分</div>
+            <div><i class="fas fa-clock"></i> 剩余: <span class="timer" id="timer">30</span> 秒</div>
+        </div>
+        
+        <div class="wordcloud-container">
+            <img id="wordcloud-img" src="images/七里香-词云.png" alt="词云图">
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="answer-input" placeholder="请输入歌曲名称...（如：七里香）" autocomplete="off">
+        </div>
+        
+        <div class="buttons">
+            <button class="submit-btn" onclick="checkAnswer()">
+                <i class="fas fa-paper-plane"></i> 提交答案
+            </button>
+            <button class="hint-btn" onclick="showHint()">
+                <i class="fas fa-lightbulb"></i> 获取提示
+            </button>
+            <button class="skip-btn" onclick="skipQuestion()">
+                <i class="fas fa-forward"></i> 跳过本题
+            </button>
+        </div>
+        
+        <div class="hint-box" id="hintBox">
+            <h3><i class="fas fa-robot"></i> AI提示 <span id="hintLevel" class="hint-level">初级</span></h3>
+            <p id="hintText">这是一首发行于2004年的华语天王代表作...</p>
+        </div>
+        
+        <div class="score-board">
+            <h3><i class="fas fa-chart-bar"></i> 游戏数据</h3>
+            <p>正确: <span id="correct">0</span> 题 | 跳过: <span id="skipped">0</span> 题 | 提示: <span id="hintCount">0</span> 次</p>
+            <progress id="progressBar" value="0" max="100" style="width:100%; height:10px; margin-top:10px;"></progress>
+        </div>
+        
+        <a href="https://chatglm.cn/share/0FckWDcn" target="_blank">
+            <button class="ai-btn">
+                <i class="fas fa-robot"></i> 咨询AI猜歌助手（点击提问）
+            </button>
+        </a>
+        
+        <div class="instructions">
+            <h4><i class="fas fa-info-circle"></i> 游戏说明</h4>
+            <ul>
+                <li>根据词云猜出正确的歌曲名称（无需输入歌手）</li>
+                <li>每道题有30秒时间，超时自动跳过</li>
+                <li>三级提示系统：初级→中级→高级（逐步揭示）</li>
+                <li>点击上方按钮可咨询AI智能助手获取更多帮助</li>
+                <li>答对一题得10分，满分100分，60分及格</li>
+                <li>图片文件名格式：歌名-词云.png</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 歌曲数据 - 已根据你的要求完全修改
+        const songs = [
+            {
+                name: "七里香",
+                image: "images/七里香-词云.png",
+                hints: [
+                    "初级提示：这首歌发行于2004年，是某位华语天王的代表作。",
+                    "中级提示：歌词充满了夏天的意象，描绘了学生时代的青涩初恋。",
+                    "高级提示：歌词里提到了'麻雀'、'秋刀鱼'和'雨水'，整首歌像一首诗。"
+                ]
+            },
+            {
+                name: "孤勇者",
+                image: "images/孤勇者-词云.png",
+                hints: [
+                    "初级提示：这是一首2021年为热门游戏动画创作的中文主题曲。",
+                    "中级提示：歌颂那些不在聚光灯下、却依然勇敢战斗的平凡英雄。",
+                    "高级提示：副歌部分有'爱你孤身走暗巷'和'战吗？战啊！'这样充满力量的歌词。"
+                ]
+            },
+            {
+                name: "小幸运",
+                image: "images/小幸运-词云.png",
+                hints: [
+                    "初级提示：这是2015年一部热门青春爱情电影的主题曲。",
+                    "中级提示：歌曲唱出了女生在青春期面对懵懂爱情时，那份后知后觉的遗憾与怀念。",
+                    "高级提示：歌词以'我听见雨滴落在青青草地'开场，描述了青春里错过又珍惜的'幸运'。"
+                ]
+            },
+            {
+                name: "晴天",
+                image: "images/晴天-词云.png",
+                hints: [
+                    "初级提示：这首歌出自2003年一张以创作者母亲名字命名的经典专辑。",
+                    "中级提示：讲述了一个发生在校园里，从相遇到分开的青春爱情故事。",
+                    "高级提示：歌词开头是'故事的小黄花'，副歌反复唱道'从前从前，有个人爱你很久'。"
+                ]
+            },
+            {
+                name: "平凡之路",
+                image: "images/平凡之路-词云.png",
+                hints: [
+                    "初级提示：这是2014年一部热门公路电影的片尾曲。",
+                    "中级提示：歌曲表达了历经繁华与失落之后，对平凡人生的深刻理解和回归。",
+                    "高级提示：歌词以'徘徊着的，在路上的'开始，核心是'向前走，就这么走'。"
+                ]
+            },
+            {
+                name: "光年之外",
+                image: "images/光年之外-词云.png",
+                hints: [
+                    "初级提示：这是一首2016年上映的经典太空科幻电影的中文主题曲。",
+                    "中级提示：描绘了在浩瀚宇宙的背景下，一场炽热而命运般的爱情。",
+                    "高级提示：歌词充满了'宇宙'、'星海'等宏大词汇，核心是'缘分让我们相遇乱世以外'。"
+                ]
+            },
+            {
+                name: "演员",
+                image: "images/演员-词云.png",
+                hints: [
+                    "初级提示：这首歌在2015年发行后迅速火遍全网，是歌手的代表作之一。",
+                    "中级提示：讽刺了爱情中一方已经不爱，却还在勉强'表演'深情的不自然状态。",
+                    "高级提示：歌词反复劝告'别再勉强'、'简单点'，副歌有'该配合你演出的我演视而不见'。"
+                ]
+            },
+            {
+                name: "最炫民族风",
+                image: "images/最炫民族风-词云.png",
+                hints: [
+                    "初级提示：这是一首2009年发行的歌曲，因其强烈的节奏感而风靡全国。",
+                    "中级提示：歌曲融合了民族元素和动感节奏，是广场舞的经典背景音乐之一。",
+                    "高级提示：歌词朗朗上口，副歌部分是'你是我天边最美的云彩，让我用心把你留下来'。"
+                ]
+            },
+            {
+                name: "起风了",
+                image: "images/起风了-词云.png",
+                hints: [
+                    "初级提示：这首歌曲的原唱版本在2017年于网络发布并走红。",
+                    "中级提示：表达了年少时闯荡世界后，回望青春与成长的复杂心绪。",
+                    "高级提示：歌词以'这一路上走走停停'开始，核心是'我曾将青春翻涌成她'。"
+                ]
+            },
+            {
+                name: "失恋阵线联盟",
+                image: "images/失恋阵线联盟-词云.png",
+                hints: [
+                    "初级提示：这是1990年代一支香港组合的歌曲，也是一部经典台剧的主题曲。",
+                    "中级提示：用轻松欢快的舞曲节奏来诠释失恋主题，倡导洒脱的态度。",
+                    "高级提示：歌词鼓励'将敌意将身份放低'，副歌是'她总是只留下电话号码，从不肯让我送她回家'。"
+                ]
+            }
+        ];
+        
+        // 游戏变量
+        let currentQuestion = 0;
+        let score = 0;
+        let correctCount = 0;
+        let skippedCount = 0;
+        let hintCount = 0;
+        let timeLeft = 30;
+        let timer;
+        let hintLevel = 0;
+        let gameStarted = false;
+        
+        // 初始化游戏
+        function initGame() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('skipped').textContent = skippedCount;
+            document.getElementById('hintCount').textContent = hintCount;
+            updateProgressBar();
+            
+            // 焦点放在输入框
+            document.getElementById('answer-input').focus();
+            
+            loadQuestion(currentQuestion);
+        }
+        
+        // 加载题目
+        function loadQuestion(index) {
+            if (index >= songs.length) {
+                endGame();
+                return;
+            }
+            
+            const song = songs[index];
+            document.getElementById('current').textContent = index + 1;
+            document.getElementById('wordcloud-img').src = song.image;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('hintBox').style.display = 'none';
+            
+            // 重置提示级别
+            hintLevel = 0;
+            document.getElementById('hintLevel').textContent = "初级";
+            document.getElementById('hintLevel').style.background = "#ff7f00";
+            
+            // 重置计时器
+            timeLeft = 30;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            if (timer) clearInterval(timer);
+            
+            // 只有开始游戏后才启动计时器
+            if (gameStarted) {
+                timer = setInterval(updateTimer, 1000);
+            }
+            
+            // 焦点放在输入框
+            setTimeout(() => {
+                document.getElementById('answer-input').focus();
+            }, 100);
+        }
+        
+        // 开始游戏（第一次点击时调用）
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                timer = setInterval(updateTimer, 1000);
+                document.getElementById('answer-input').focus();
+            }
+        }
+        
+        // 更新计时器
+        function updateTimer() {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            // 时间警告
+            if (timeLeft === 10) {
+                document.getElementById('timer').style.color = "#ff3838";
+                document.getElementById('timer').style.fontWeight = "bold";
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                alert(`⏰ 时间到！\n正确答案是：《${songs[currentQuestion].name}》`);
+                skippedCount++;
+                document.getElementById('skipped').textContent = skippedCount;
+                updateProgressBar();
+                
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        }
+        
+        // 检查答案
+        function checkAnswer() {
+            startGame(); // 确保游戏已开始
+            
+            const userAnswer = document.getElementById('answer-input').value.trim().toLowerCase();
+            const correctAnswer = songs[currentQuestion].name.toLowerCase();
+            
+            // 宽松匹配：包含关键字就算对，或去掉《》符号
+            const normalizedUserAnswer = userAnswer.replace(/《|》/g, '');
+            const normalizedCorrectAnswer = correctAnswer.replace(/《|》/g, '');
+            
+            if (normalizedUserAnswer.includes(normalizedCorrectAnswer) || 
+                normalizedCorrectAnswer.includes(normalizedUserAnswer) ||
+                userAnswer === normalizedCorrectAnswer) {
+                
+                // 正确动画效果
+                document.getElementById('wordcloud-img').classList.add('correct-animation');
+                setTimeout(() => {
+                    document.getElementById('wordcloud-img').classList.remove('correct-animation');
+                }, 500);
+                
+                // 计算得分（根据时间和提示使用情况）
+                let questionScore = 10;
+                if (hintLevel > 0) questionScore -= hintLevel * 2; // 每用一次提示扣2分
+                if (timeLeft < 10) questionScore -= 2; // 时间紧张扣2分
+                if (questionScore < 3) questionScore = 3; // 最低3分
+                
+                score += questionScore;
+                correctCount++;
+                
+                alert(`🎉 恭喜你！答对了！\n歌曲：《${songs[currentQuestion].name}》\n得分：+${questionScore}分`);
+                
+                document.getElementById('score').textContent = score;
+                document.getElementById('correct').textContent = correctCount;
+                updateProgressBar();
+                
+            } else {
+                alert(`❌ 答错了\n正确答案是：《${songs[currentQuestion].name}》\n你的答案：${userAnswer || "（未输入）"}`);
+            }
+            
+            currentQuestion++;
+            loadQuestion(currentQuestion);
+        }
+        
+        // 显示提示
+        function showHint() {
+            startGame(); // 确保游戏已开始
+            
+            const hintBox = document.getElementById('hintBox');
+            const hintText = document.getElementById('hintText');
+            const hintLevelElement = document.getElementById('hintLevel');
+            
+            if (hintLevel < songs[currentQuestion].hints.length) {
+                hintText.textContent = songs[currentQuestion].hints[hintLevel];
+                
+                // 更新提示级别显示
+                if (hintLevel === 0) {
+                    hintLevelElement.textContent = "初级";
+                    hintLevelElement.style.background = "#ff7f00";
+                } else if (hintLevel === 1) {
+                    hintLevelElement.textContent = "中级";
+                    hintLevelElement.style.background = "#ff5500";
+                } else if (hintLevel === 2) {
+                    hintLevelElement.textContent = "高级";
+                    hintLevelElement.style.background = "#ff3838";
+                }
+                
+                hintLevel++;
+                hintCount++;
+                document.getElementById('hintCount').textContent = hintCount;
+                hintBox.style.display = 'block';
+                
+                // 自动隐藏提示
+                setTimeout(() => {
+                    hintBox.style.display = 'none';
+                }, 8000);
+            } else {
+                hintText.textContent = "⚠️ 没有更多提示了，加油！";
+                hintLevelElement.textContent = "无";
+                hintLevelElement.style.background = "#666";
+                hintBox.style.display = 'block';
+                
+                setTimeout(() => {
+                    hintBox.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // 跳过题目
+        function skipQuestion() {
+            startGame(); // 确保游戏已开始
+            
+            if (confirm(`确定要跳过第${currentQuestion + 1}题吗？\n正确答案是：《${songs[currentQuestion].name}》`)) {
+                skippedCount++;
+                document.getElementById('skipped').textContent = skippedCount;
+                updateProgressBar();
+                
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        }
+        
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = ((currentQuestion) / songs.length) * 100;
+            document.getElementById('progressBar').value = progress;
+        }
+        
+        // 游戏结束
+        function endGame() {
+            clearInterval(timer);
+            
+            // 计算评级
+            let rating = "";
+            let ratingColor = "";
+            if (score >= 90) {
+                rating = "🎖️ 音乐大师";
+                ratingColor = "#ffd700";
+            } else if (score >= 70) {
+                rating = "🏆 猜歌达人";
+                ratingColor = "#c0c0c0";
+            } else if (score >= 50) {
+                rating = "👍 潜力新人";
+                ratingColor = "#cd7f32";
+            } else {
+                rating = "💪 继续加油";
+                ratingColor = "#666";
+            }
+            
+            let message = `🎮 游戏结束！\n\n`;
+            message += `最终得分：${score} / ${songs.length * 10}\n`;
+            message += `评级：${rating}\n`;
+            message += `正确：${correctCount} 题\n`;
+            message += `跳过：${skippedCount} 题\n`;
+            message += `提示：${hintCount} 次\n\n`;
+            
+            if (score >= 70) {
+                message += `🏆 太厉害了！你的音乐知识很丰富！`;
+            } else if (score >= 50) {
+                message += `👍 不错哦，再多听听歌会更好！`;
+            } else {
+                message += `💪 没关系，多玩几次就能提高！`;
+            }
+            
+            // 显示结果
+            const result = confirm(`${message}\n\n是否重新开始游戏？`);
+            
+            if (result) {
+                // 重置游戏
+                currentQuestion = 0;
+                score = 0;
+                correctCount = 0;
+                skippedCount = 0;
+                hintCount = 0;
+                hintLevel = 0;
+                gameStarted = false;
+                
+                document.getElementById('timer').style.color = "";
+                document.getElementById('timer').style.fontWeight = "";
+                
+                initGame();
+            }
+        }
+        
+        // 页面加载时初始化游戏
+        window.onload = initGame;
+        
+        // 键盘支持：按Enter提交答案
+        document.getElementById('answer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        
+        // 自动开始游戏（点击任何按钮或输入框时）
+        document.addEventListener('click', startGame);
+        document.getElementById('answer-input').addEventListener('focus', startGame);
+    </script>
+</body>
+</html>
